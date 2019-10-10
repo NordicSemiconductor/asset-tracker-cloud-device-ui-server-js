@@ -1,7 +1,11 @@
 import * as http from 'http'
 import chalk from 'chalk'
 import { portForDevice } from './portForDevice'
-import { server as WebSocketServer, connection } from 'websocket'
+import { server as WebSocketServer } from 'websocket'
+
+export type WebSocketConnection = {
+	send: (data: string) => void
+}
 
 export const uiServer = async ({
 	deviceId,
@@ -12,7 +16,7 @@ export const uiServer = async ({
 	deviceId: string
 	deviceUiUrl: string
 	onUpdate: (update: object) => void
-	onWsConnection: (connection: connection) => void
+	onWsConnection: (connection: WebSocketConnection) => void
 }) => {
 	const port = portForDevice({ deviceId: deviceId })
 
