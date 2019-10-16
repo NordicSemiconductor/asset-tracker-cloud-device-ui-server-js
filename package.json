@@ -28,7 +28,7 @@
     "@bifravst/code-style": "^4.1.1",
     "@commitlint/cli": "^8.2.0",
     "@commitlint/config-angular": "^8.2.0",
-    "@types/websocket": "0.0.40",
+    "@types/websocket": "1.0.0",
     "husky": "^3.0.7"
   },
   "husky": {
