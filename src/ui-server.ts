@@ -1,5 +1,5 @@
 import * as http from 'http'
-import chalk from 'chalk'
+import * as chalk from 'chalk'
 import { portForDevice } from './portForDevice'
 import { server as WebSocketServer } from 'websocket'
 
