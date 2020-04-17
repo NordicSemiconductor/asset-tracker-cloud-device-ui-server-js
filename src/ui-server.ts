@@ -7,18 +7,52 @@ export type WebSocketConnection = {
 	send: (data: string) => void
 }
 
+const handleIncoming = (onMessage: (message: object) => void) => (
+	request: http.IncomingMessage,
+	response: http.ServerResponse,
+) => {
+	let body = ''
+	request.on('data', (chunk) => {
+		body += chunk.toString() // convert Buffer to string
+	})
+	request.on('end', () => {
+		try {
+			const update = JSON.parse(body)
+			onMessage(update)
+			response.writeHead(202, {
+				'Access-Control-Allow-Origin': '*',
+			})
+			response.end()
+		} catch (err) {
+			console.log(err)
+			const errData = JSON.stringify(err)
+			response.writeHead(400, {
+				'Content-Length': Buffer.byteLength(errData),
+				'Content-Type': 'application/json',
+				'Access-Control-Allow-Origin': '*',
+			})
+			response.end(errData)
+		}
+	})
+}
+
 export const uiServer = async ({
 	deviceId,
 	deviceUiUrl,
 	onUpdate,
+	onMessage,
 	onWsConnection,
 }: {
 	deviceId: string
 	deviceUiUrl: string
 	onUpdate: (update: object) => void
+	onMessage: (message: object) => void
 	onWsConnection: (connection: WebSocketConnection) => void
 }) => {
 	const port = portForDevice({ deviceId: deviceId })
+
+	const updateHandler = handleIncoming(onUpdate)
+	const messageHandler = handleIncoming(onMessage)
 
 	const requestHandler: http.RequestListener = async (request, response) => {
 		if (request.method === 'OPTIONS') {
@@ -30,7 +64,6 @@ export const uiServer = async ({
 			response.end()
 			return
 		}
-		let body = ''
 		switch (request.url) {
 			case '/id':
 				response.writeHead(200, {
@@ -41,28 +74,10 @@ export const uiServer = async ({
 				response.end(deviceId)
 				break
 			case '/update':
-				request.on('data', chunk => {
-					body += chunk.toString() // convert Buffer to string
-				})
-				request.on('end', () => {
-					try {
-						const update = JSON.parse(body)
-						onUpdate(update)
-						response.writeHead(202, {
-							'Access-Control-Allow-Origin': '*',
-						})
-						response.end()
-					} catch (err) {
-						console.log(err)
-						const errData = JSON.stringify(err)
-						response.writeHead(400, {
-							'Content-Length': Buffer.byteLength(errData),
-							'Content-Type': 'application/json',
-							'Access-Control-Allow-Origin': '*',
-						})
-						response.end(errData)
-					}
-				})
+				updateHandler(request, response)
+				break
+			case '/message':
+				messageHandler(request, response)
 				break
 			case '/subscribe':
 				// FIXME: Add websockets
@@ -89,7 +104,7 @@ export const uiServer = async ({
 	const wsServer = new WebSocketServer({
 		httpServer: server,
 	})
-	wsServer.on('request', request => {
+	wsServer.on('request', (request) => {
 		const connection = request.accept(undefined, request.origin)
 		onWsConnection(connection)
 	})
