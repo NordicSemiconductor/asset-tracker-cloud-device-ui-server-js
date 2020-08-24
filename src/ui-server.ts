@@ -7,7 +7,7 @@ export type WebSocketConnection = {
 	send: (data: string) => void
 }
 
-const handleIncoming = (onMessage: (message: object) => void) => (
+const handleIncoming = (onMessage: (message: Record<string, any>) => void) => (
 	request: http.IncomingMessage,
 	response: http.ServerResponse,
 ) => {
@@ -41,18 +41,21 @@ export const uiServer = async ({
 	deviceUiUrl,
 	onUpdate,
 	onMessage,
+	onBatch,
 	onWsConnection,
 }: {
 	deviceId: string
 	deviceUiUrl: string
-	onUpdate: (update: object) => void
-	onMessage: (message: object) => void
+	onUpdate: (update: Record<string, any>) => void
+	onMessage: (message: Record<string, any>) => void
+	onBatch: (updates: Record<string, any>) => void
 	onWsConnection: (connection: WebSocketConnection) => void
 }) => {
 	const port = portForDevice({ deviceId: deviceId })
 
 	const updateHandler = handleIncoming(onUpdate)
 	const messageHandler = handleIncoming(onMessage)
+	const batchHandler = handleIncoming(onBatch)
 
 	const requestHandler: http.RequestListener = async (request, response) => {
 		if (request.method === 'OPTIONS') {
@@ -78,6 +81,9 @@ export const uiServer = async ({
 				break
 			case '/message':
 				messageHandler(request, response)
+				break
+			case '/batch':
+				batchHandler(request, response)
 				break
 			case '/subscribe':
 				// FIXME: Add websockets
