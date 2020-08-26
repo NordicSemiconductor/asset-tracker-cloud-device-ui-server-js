@@ -26,12 +26,12 @@
     "websocket": "^1.0.31"
   },
   "devDependencies": {
-    "@bifravst/code-style": "^8.0.34",
-    "@commitlint/cli": "^9.1.2",
-    "@commitlint/config-angular": "^9.1.2",
-    "@types/websocket": "^1.0.1",
-    "husky": "^4.2.5",
-    "typescript": "^4.0.2"
+    "@bifravst/code-style": "8.0.34",
+    "@commitlint/cli": "9.1.2",
+    "@commitlint/config-angular": "9.1.2",
+    "@types/websocket": "1.0.1",
+    "husky": "4.2.5",
+    "typescript": "4.0.2"
   },
   "husky": {
     "hooks": {
