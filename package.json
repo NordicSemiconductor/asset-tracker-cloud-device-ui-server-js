@@ -23,7 +23,7 @@
   "license": "BSD-3-Clause",
   "dependencies": {
     "chalk": "^4.1.0",
-    "websocket": "^1.0.32"
+    "websocket": "^1.0.33"
   },
   "devDependencies": {
     "@bifravst/code-style": "8.0.134",
