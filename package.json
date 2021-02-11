@@ -31,7 +31,7 @@
     "@nordicsemiconductor/eslint-config-asset-tracker-cloud-typescript": "7.0.0",
     "@types/websocket": "1.0.1",
     "husky": "5.0.9",
-    "lint-staged": "10.5.3",
+    "lint-staged": "10.5.4",
     "pinst": "2.1.4",
     "prettier": "2.2.1",
     "typescript": "4.1.3"
