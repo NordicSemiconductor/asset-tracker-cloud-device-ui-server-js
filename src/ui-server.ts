@@ -1,5 +1,4 @@
 import * as http from 'http'
-import * as chalk from 'chalk'
 import { portForDevice } from './portForDevice'
 import { server as WebSocketServer } from 'websocket'
 
@@ -36,21 +35,24 @@ const handleIncoming = (onMessage: (message: Record<string, any>) => void) => (
 	})
 }
 
+/**
+ * Starts the websocket server that receives commands from the web UI and forwards it to the handlers.
+ *
+ * Returns the port it is listening on.
+ */
 export const uiServer = async ({
 	deviceId,
-	deviceUiUrl,
 	onUpdate,
 	onMessage,
 	onBatch,
 	onWsConnection,
 }: {
 	deviceId: string
-	deviceUiUrl: string
 	onUpdate: (update: Record<string, any>) => void
 	onMessage: (message: Record<string, any>) => void
 	onBatch: (updates: Record<string, any>) => void
 	onWsConnection: (connection: WebSocketConnection) => void
-}) => {
+}): Promise<number> => {
 	const port = portForDevice({ deviceId: deviceId })
 
 	const updateHandler = handleIncoming(onUpdate)
@@ -96,22 +98,17 @@ export const uiServer = async ({
 
 	const server = http.createServer(requestHandler)
 
-	server.listen(port, () => {
-		console.log(
-			chalk.cyan(`To control this device open your browser on:`),
-			chalk.green(
-				`${deviceUiUrl}?endpoint=${encodeURIComponent(
-					`http://localhost:${port}`,
-				)}`,
-			),
-		)
-	})
-
 	const wsServer = new WebSocketServer({
 		httpServer: server,
 	})
 	wsServer.on('request', (request) => {
 		const connection = request.accept(undefined, request.origin)
 		onWsConnection(connection)
+	})
+
+	return new Promise<number>((resolve) => {
+		server.listen(port, () => {
+			resolve(port)
+		})
 	})
 }
