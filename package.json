@@ -21,7 +21,7 @@
   "author": "Nordic Semiconductor ASA | nordicsemi.no",
   "license": "BSD-3-Clause",
   "dependencies": {
-    "websocket": "1.0.33"
+    "websocket": "1.0.34"
   },
   "devDependencies": {
     "@commitlint/cli": "12.1.1",
