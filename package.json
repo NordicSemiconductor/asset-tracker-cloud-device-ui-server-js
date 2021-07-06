@@ -27,7 +27,7 @@
     "@commitlint/cli": "12.1.4",
     "@commitlint/config-angular": "12.1.4",
     "@nordicsemiconductor/asset-tracker-cloud-code-style": "9.0.4",
-    "@nordicsemiconductor/eslint-config-asset-tracker-cloud-typescript": "8.0.0",
+    "@nordicsemiconductor/eslint-config-asset-tracker-cloud-typescript": "8.0.1",
     "@types/websocket": "1.0.3",
     "husky": "7.0.1",
     "lint-staged": "11.0.0",
