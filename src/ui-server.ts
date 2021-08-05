@@ -6,34 +6,37 @@ export type WebSocketConnection = {
 	send: (data: string) => void
 }
 
-const handleIncoming = (onMessage: (message: Record<string, any>) => void) => (
-	request: http.IncomingMessage,
-	response: http.ServerResponse,
-) => {
-	let body = ''
-	request.on('data', (chunk) => {
-		body += chunk.toString() // convert Buffer to string
-	})
-	request.on('end', () => {
-		try {
-			const update = JSON.parse(body)
-			onMessage(update)
-			response.writeHead(202, {
-				'Access-Control-Allow-Origin': '*',
-			})
-			response.end()
-		} catch (err) {
-			console.log(err)
-			const errData = JSON.stringify(err)
-			response.writeHead(400, {
-				'Content-Length': Buffer.byteLength(errData),
-				'Content-Type': 'application/json',
-				'Access-Control-Allow-Origin': '*',
-			})
-			response.end(errData)
-		}
-	})
-}
+const handleIncoming =
+	(onMessage: (message: Record<string, any>, topic: string) => void) =>
+	(
+		request: http.IncomingMessage,
+		response: http.ServerResponse,
+		topic: string,
+	) => {
+		let body = ''
+		request.on('data', (chunk) => {
+			body += chunk.toString() // convert Buffer to string
+		})
+		request.on('end', () => {
+			try {
+				const update = JSON.parse(body)
+				onMessage(update, topic)
+				response.writeHead(202, {
+					'Access-Control-Allow-Origin': '*',
+				})
+				response.end()
+			} catch (err) {
+				console.log(err)
+				const errData = JSON.stringify(err)
+				response.writeHead(400, {
+					'Content-Length': Buffer.byteLength(errData),
+					'Content-Type': 'application/json',
+					'Access-Control-Allow-Origin': '*',
+				})
+				response.end(errData)
+			}
+		})
+	}
 
 /**
  * Starts the websocket server that receives commands from the web UI and forwards it to the handlers.
@@ -43,20 +46,25 @@ const handleIncoming = (onMessage: (message: Record<string, any>) => void) => (
 export const uiServer = async ({
 	deviceId,
 	onUpdate,
-	onMessage,
+	onSensorMessage,
 	onBatch,
 	onWsConnection,
+	onMessage,
 }: {
 	deviceId: string
 	onUpdate: (update: Record<string, any>) => void
-	onMessage: (message: Record<string, any>) => void
+	onSensorMessage: (message: Record<string, any>) => void
+	onMessage?: Record<
+		string,
+		(message: Record<string, any>, topic: string) => void
+	>
 	onBatch: (updates: Record<string, any>) => void
 	onWsConnection: (connection: WebSocketConnection) => void
 }): Promise<number> => {
 	const port = portForDevice({ deviceId: deviceId })
 
 	const updateHandler = handleIncoming(onUpdate)
-	const messageHandler = handleIncoming(onMessage)
+	const sensorMessageHandler = handleIncoming(onSensorMessage)
 	const batchHandler = handleIncoming(onBatch)
 
 	const requestHandler: http.RequestListener = async (request, response) => {
@@ -79,20 +87,28 @@ export const uiServer = async ({
 				response.end(deviceId)
 				break
 			case '/update':
-				updateHandler(request, response)
+				updateHandler(request, response, request.url)
 				break
 			case '/message':
-				messageHandler(request, response)
+				sensorMessageHandler(request, response, request.url)
 				break
 			case '/batch':
-				batchHandler(request, response)
+				batchHandler(request, response, request.url)
 				break
 			case '/subscribe':
 				// FIXME: Add websockets
 				break
 			default:
-				response.statusCode = 404
-				response.end()
+				if (onMessage?.[request.url ?? '/'] !== undefined) {
+					handleIncoming(onMessage[request.url ?? '/'])(
+						request,
+						response,
+						request.url ?? '/',
+					)
+				} else {
+					response.statusCode = 404
+					response.end()
+				}
 		}
 	}
 
