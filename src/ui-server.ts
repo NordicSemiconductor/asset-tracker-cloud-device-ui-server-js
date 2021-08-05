@@ -7,7 +7,7 @@ export type WebSocketConnection = {
 }
 
 const handleIncoming =
-	(onMessage: (message: string, topic: string) => void) =>
+	(onMessage: (message: string, path: string) => void) =>
 	(
 		request: http.IncomingMessage,
 		response: http.ServerResponse,
@@ -27,7 +27,7 @@ const handleIncoming =
 	}
 
 const handleIncomingJSONMessage =
-	(onMessage: (message: Record<string, any>, topic: string) => void) =>
+	(onMessage: (message: Record<string, any>, path: string) => void) =>
 	(
 		request: http.IncomingMessage,
 		response: http.ServerResponse,
