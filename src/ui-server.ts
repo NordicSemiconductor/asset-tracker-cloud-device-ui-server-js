@@ -7,6 +7,26 @@ export type WebSocketConnection = {
 }
 
 const handleIncoming =
+	(onMessage: (message: string, topic: string) => void) =>
+	(
+		request: http.IncomingMessage,
+		response: http.ServerResponse,
+		topic: string,
+	) => {
+		let body = ''
+		request.on('data', (chunk) => {
+			body += chunk.toString() // convert Buffer to string
+		})
+		request.on('end', () => {
+			onMessage(body, topic)
+			response.writeHead(202, {
+				'Access-Control-Allow-Origin': '*',
+			})
+			response.end()
+		})
+	}
+
+const handleIncomingJSONMessage =
 	(onMessage: (message: Record<string, any>, topic: string) => void) =>
 	(
 		request: http.IncomingMessage,
@@ -54,18 +74,15 @@ export const uiServer = async ({
 	deviceId: string
 	onUpdate: (update: Record<string, any>) => void
 	onSensorMessage: (message: Record<string, any>) => void
-	onMessage?: Record<
-		string,
-		(message: Record<string, any>, topic: string) => void
-	>
+	onMessage?: Record<string, (message: string, topic: string) => void>
 	onBatch: (updates: Record<string, any>) => void
 	onWsConnection: (connection: WebSocketConnection) => void
 }): Promise<number> => {
 	const port = portForDevice({ deviceId: deviceId })
 
-	const updateHandler = handleIncoming(onUpdate)
-	const sensorMessageHandler = handleIncoming(onSensorMessage)
-	const batchHandler = handleIncoming(onBatch)
+	const updateHandler = handleIncomingJSONMessage(onUpdate)
+	const sensorMessageHandler = handleIncomingJSONMessage(onSensorMessage)
+	const batchHandler = handleIncomingJSONMessage(onBatch)
 
 	const requestHandler: http.RequestListener = async (request, response) => {
 		if (request.method === 'OPTIONS') {
