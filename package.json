@@ -24,7 +24,7 @@
     "websocket": "1.0.34"
   },
   "devDependencies": {
-    "@nordicsemiconductor/asset-tracker-cloud-code-style": "9.2.19",
+    "@nordicsemiconductor/asset-tracker-cloud-code-style": "9.2.20",
     "@types/websocket": "1.0.4"
   },
   "lint-staged": {
