@@ -37,8 +37,8 @@
     ]
   },
   "engines": {
-    "node": "16",
-    "npm": "8"
+    "node": ">=16",
+    "npm": ">=8"
   },
   "release": {
     "branches": [
