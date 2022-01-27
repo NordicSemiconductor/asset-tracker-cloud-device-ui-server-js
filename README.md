@@ -14,4 +14,4 @@ to interact with the simulated device.
 
 ## Installation
 
-    npm i --save @nordicsemiconductor/asset-tracker-cloud-device-ui-server
+    npm i --save --save-exact @nordicsemiconductor/asset-tracker-cloud-device-ui-server
