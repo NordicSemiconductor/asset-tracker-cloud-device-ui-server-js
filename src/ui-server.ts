@@ -1,6 +1,6 @@
 import * as http from 'http'
-import { portForDevice } from './portForDevice'
 import { server as WebSocketServer } from 'websocket'
+import { portForDevice } from './portForDevice'
 
 export type WebSocketConnection = {
 	send: (data: string) => void
