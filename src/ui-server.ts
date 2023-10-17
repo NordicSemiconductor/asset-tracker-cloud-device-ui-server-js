@@ -1,6 +1,6 @@
 import * as http from 'http'
 import { server as WebSocketServer } from 'websocket'
-import { portForDevice } from './portForDevice'
+import { portForDevice } from './portForDevice.js'
 
 export type WebSocketConnection = {
 	send: (data: string) => void
@@ -78,7 +78,7 @@ export const uiServer = async ({
 	onBatch: (updates: Record<string, { v: any; ts: number }[]>) => void
 	onWsConnection: (connection: WebSocketConnection) => void
 }): Promise<number> => {
-	const port = portForDevice({ deviceId: deviceId })
+	const port = portForDevice({ deviceId })
 
 	const updateHandler = handleIncomingJSONMessage(onUpdate)
 	const sensorMessageHandler = handleIncomingJSONMessage(onSensorMessage)
