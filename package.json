@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@commitlint/config-conventional": "18.4.3",
-    "@nordicsemiconductor/asset-tracker-cloud-code-style": "13.0.0",
+    "@nordicsemiconductor/asset-tracker-cloud-code-style": "13.1.0",
     "@nordicsemiconductor/eslint-config-asset-tracker-cloud-typescript": "17.0.0",
     "@types/websocket": "1.0.10",
     "@typescript-eslint/eslint-plugin": "6.13.1",
